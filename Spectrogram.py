@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib
-matplotlib.use("TkAgg")  # or "Agg" or another supported backend
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 dt = 0.0005
@@ -94,15 +94,6 @@ def on_key(event):
 
 fig.canvas.mpl_connect('key_press_event', on_key)
 
-# Blitting setup
-background = fig.canvas.copy_from_bbox(ax.bbox)
-fig.canvas.draw()
 
-def draw_idle(event):
-    fig.canvas.restore_region(background)
-    ax.draw_artist(im)
-    fig.canvas.blit(ax.bbox)
-
-fig.canvas.mpl_connect('draw_event', draw_idle)
 
 plt.show()
