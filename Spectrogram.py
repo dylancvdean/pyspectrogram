@@ -23,6 +23,9 @@ y = np.random.randn(1000)
 colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
 current_colormap_idx = 0
 
+min_freq = 2000
+max_freq = 24000
+
 def update_colormap(ax, colormap):
     for im in ax.images:
         im.set_cmap(colormap)
@@ -35,11 +38,11 @@ gs = fig.add_gridspec(2, 3, width_ratios=(2, 8, 1), height_ratios=(4, 1),
 
 ax = fig.add_subplot(gs[0, 1])
 ax_histx = fig.add_subplot(gs[1, 1], sharex=ax)
-ax_histy = fig.add_subplot(gs[0, 0], sharey=ax)
+ax_histy = fig.add_subplot(gs[0, 0])
 ax_colormap = fig.add_subplot(gs[0, 2])
 
 ax_histx.tick_params(axis="x", labelbottom=False)
-ax_histy.tick_params(axis="y", labelleft=False)
+ax_histy.tick_params(axis="y", labelleft=True)
 
 Pxx, freqs, bins, im = ax.specgram(x1, NFFT=NFFT, Fs=Fs, noverlap=900, cmap=colormaps[current_colormap_idx])
 
@@ -51,6 +54,7 @@ amp = np.abs(fft[freq_mask])
 
 ax_histy.plot(amp, freq)
 ax_histy.set_ylim([0, Fs / 2])
+ax_histy.set_ylabel('Frequency (Hz)')
 
 ax_histx.plot(t, x1)
 
@@ -65,12 +69,21 @@ def on_key(event):
     global current_colormap_idx
 
     current_xlim = ax.get_xlim()
-    current_range = current_xlim[1] - current_xlim[0]
+    current_ylim = ax.get_ylim()
+    current_xrange = current_xlim[1] - current_xlim[0]
+    current_yrange = current_ylim[1] - current_ylim[0]
 
-    if event.key == 'up':  # Zoom in
-        new_range = current_range / zoom_scale
-    elif event.key == 'down':  # Zoom out
-        new_range = current_range * zoom_scale
+    new_xrange = current_xrange
+    new_yrange = current_yrange
+
+    if event.key == 'up':  # Zoom in on the time axis
+        new_xrange = current_xrange / zoom_scale
+    elif event.key == 'down':  # Zoom out on the time axis
+        new_xrange = current_xrange * zoom_scale
+    elif event.key == 'w':  # Zoom in on the frequency axis
+        new_yrange = current_yrange / zoom_scale
+    elif event.key == 'e':  # Zoom out on the frequency axis
+        new_yrange = current_yrange * zoom_scale
     elif event.key == 'right':  # Cycle to the next colormap
         current_colormap_idx = (current_colormap_idx + 1) % len(colormaps)
         update_colormap(ax, colormaps[current_colormap_idx])
@@ -82,18 +95,39 @@ def on_key(event):
     else:
         return
 
-    if new_range > 20:
-        new_range = 20
+    if new_xrange > 20:
+        new_xrange = 20
 
-    center = np.mean(current_xlim)
-    new_xlim = (center - new_range / 2, center + new_range / 2)
+    if new_yrange > max_freq:
+        new_yrange = max_freq
+
+    if new_yrange < min_freq:
+        new_yrange = min_freq
+
+    xcenter = np.mean(current_xlim)
+    ycenter = np.mean(current_ylim)
+
+    new_xlim = (xcenter - new_xrange / 2, xcenter + new_xrange / 2)
+    new_ylim = (ycenter - new_yrange / 2, ycenter + new_yrange / 2)
+
     ax.set_xlim(new_xlim)
     ax_histx.set_xlim(new_xlim)
+
+    ax.set_ylim(new_ylim)
+
+    # Update the ylim for ax_histy subplot and rescale the amplitude data
+    freq_mask = (freq >= new_ylim[0]) & (freq <= new_ylim[1])
+    visible_freq = freq[freq_mask]
+    visible_amp = amp[freq_mask]
+    visible_amp = visible_amp / np.max(visible_amp) * new_yrange / 2
+
+    ax_histy.clear()
+    ax_histy.plot(visible_amp, visible_freq)
+    ax_histy.set_ylim(new_ylim)
+    ax_histy.set_ylabel('Frequency (Hz)')
 
     fig.canvas.draw_idle()
 
 fig.canvas.mpl_connect('key_press_event', on_key)
-
-
 
 plt.show()
