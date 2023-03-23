@@ -21,30 +21,9 @@ y = np.random.randn(1000)
 colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
 current_colormap_idx = 0
 
-def draw(ax, ax_histx, ax_histy, ax_colormap, colormap):
-    ax.clear()
-    ax_histx.clear()
-    ax_histy.clear()
-    ax_colormap.clear()
-
-    ax_histx.tick_params(axis="x", labelbottom=False)
-    ax_histy.tick_params(axis="y", labelleft=False)
-
-    Pxx, freqs, bins, im = ax.specgram(x1, NFFT=NFFT, Fs=Fs, noverlap=900, cmap=colormap)
-
-    fft = np.fft.fft(x1)
-    freq = np.fft.fftfreq(len(x1), dt)
-    freq_mask = freq >= 0
-    freq = freq[freq_mask]
-    amp = np.abs(fft[freq_mask])
-
-    ax_histy.plot(amp, freq)
-    ax_histy.set_ylim([0, Fs / 2])
-
-    ax_histx.plot(t, x1)
-
-    plt.colorbar(im, cax=ax_colormap)
-
+def update_colormap(ax, colormap):
+    for im in ax.images:
+        im.set_cmap(colormap)
     fig.canvas.draw()
 
 fig = plt.figure(figsize=(16, 9))
@@ -57,7 +36,23 @@ ax_histx = fig.add_subplot(gs[1, 1], sharex=ax)
 ax_histy = fig.add_subplot(gs[0, 0], sharey=ax)
 ax_colormap = fig.add_subplot(gs[0, 2])
 
-draw(ax, ax_histx, ax_histy, ax_colormap, colormaps[current_colormap_idx])
+ax_histx.tick_params(axis="x", labelbottom=False)
+ax_histy.tick_params(axis="y", labelleft=False)
+
+Pxx, freqs, bins, im = ax.specgram(x1, NFFT=NFFT, Fs=Fs, noverlap=900, cmap=colormaps[current_colormap_idx])
+
+fft = np.fft.fft(x1)
+freq = np.fft.fftfreq(len(x1), dt)
+freq_mask = freq >= 0
+freq = freq[freq_mask]
+amp = np.abs(fft[freq_mask])
+
+ax_histy.plot(amp, freq)
+ax_histy.set_ylim([0, Fs / 2])
+
+ax_histx.plot(t, x1)
+
+plt.colorbar(im, cax=ax_colormap)
 
 ax.set_xlim(0, 20)
 ax_histx.set_xlim(0, 20)
@@ -76,11 +71,11 @@ def on_key(event):
         new_range = current_range * zoom_scale
     elif event.key == 'right':  # Cycle to the next colormap
         current_colormap_idx = (current_colormap_idx + 1) % len(colormaps)
-        draw(ax, ax_histx, ax_histy, ax_colormap, colormaps[current_colormap_idx])
+        update_colormap(ax, colormaps[current_colormap_idx])
         return
     elif event.key == 'left':  # Cycle to the previous colormap
         current_colormap_idx = (current_colormap_idx - 1) % len(colormaps)
-        draw(ax, ax_histx, ax_histy, ax_colormap, colormaps[current_colormap_idx])
+        update_colormap(ax, colormaps[current_colormap_idx])
         return
     else:
         return
