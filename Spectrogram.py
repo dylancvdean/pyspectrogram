@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Fixing random state for reproducibility
-# np.random.seed(19680801)
-
 dt = 0.0005
 t = np.arange(0.0, 20.0, dt)
 s1 = np.sin(2 * np.pi * 100 * t)
@@ -21,12 +18,19 @@ Fs = int(1.0 / dt)
 x = np.random.randn(1000)
 y = np.random.randn(1000)
 
+colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
+current_colormap_idx = 0
 
-def draw(x, y, ax, ax_histx, ax_histy, ax_colormap):
+def draw(ax, ax_histx, ax_histy, ax_colormap, colormap):
+    ax.clear()
+    ax_histx.clear()
+    ax_histy.clear()
+    ax_colormap.clear()
+
     ax_histx.tick_params(axis="x", labelbottom=False)
     ax_histy.tick_params(axis="y", labelleft=False)
 
-    Pxx, freqs, bins, im = ax.specgram(x1, NFFT=NFFT, Fs=Fs, noverlap=900)
+    Pxx, freqs, bins, im = ax.specgram(x1, NFFT=NFFT, Fs=Fs, noverlap=900, cmap=colormap)
 
     fft = np.fft.fft(x1)
     freq = np.fft.fftfreq(len(x1), dt)
@@ -39,9 +43,9 @@ def draw(x, y, ax, ax_histx, ax_histy, ax_colormap):
 
     ax_histx.plot(t, x1)
 
-    # Display the colormap in the right window
     plt.colorbar(im, cax=ax_colormap)
 
+    fig.canvas.draw()
 
 fig = plt.figure(figsize=(16, 9))
 gs = fig.add_gridspec(2, 3, width_ratios=(2, 8, 1), height_ratios=(4, 1),
@@ -53,26 +57,34 @@ ax_histx = fig.add_subplot(gs[1, 1], sharex=ax)
 ax_histy = fig.add_subplot(gs[0, 0], sharey=ax)
 ax_colormap = fig.add_subplot(gs[0, 2])
 
-draw(x, y, ax, ax_histx, ax_histy, ax_colormap)
+draw(ax, ax_histx, ax_histy, ax_colormap, colormaps[current_colormap_idx])
 
-# Set hard limits for zooming
 ax.set_xlim(0, 20)
 ax_histx.set_xlim(0, 20)
 
 zoom_scale = 1.1
 
 def on_key(event):
+    global current_colormap_idx
+
     current_xlim = ax.get_xlim()
     current_range = current_xlim[1] - current_xlim[0]
-    
+
     if event.key == 'up':  # Zoom in
         new_range = current_range / zoom_scale
     elif event.key == 'down':  # Zoom out
         new_range = current_range * zoom_scale
+    elif event.key == 'right':  # Cycle to the next colormap
+        current_colormap_idx = (current_colormap_idx + 1) % len(colormaps)
+        draw(ax, ax_histx, ax_histy, ax_colormap, colormaps[current_colormap_idx])
+        return
+    elif event.key == 'left':  # Cycle to the previous colormap
+        current_colormap_idx = (current_colormap_idx - 1) % len(colormaps)
+        draw(ax, ax_histx, ax_histy, ax_colormap, colormaps[current_colormap_idx])
+        return
     else:
         return
 
-    # Apply hard limits
     if new_range > 20:
         new_range = 20
 
