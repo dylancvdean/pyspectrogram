@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib
+matplotlib.use("TkAgg")  # or "Agg" or another supported backend
 import matplotlib.pyplot as plt
 
 dt = 0.0005
@@ -24,7 +26,7 @@ current_colormap_idx = 0
 def update_colormap(ax, colormap):
     for im in ax.images:
         im.set_cmap(colormap)
-    fig.canvas.draw()
+    fig.canvas.draw_idle()
 
 fig = plt.figure(figsize=(16, 9))
 gs = fig.add_gridspec(2, 3, width_ratios=(2, 8, 1), height_ratios=(4, 1),
@@ -88,8 +90,19 @@ def on_key(event):
     ax.set_xlim(new_xlim)
     ax_histx.set_xlim(new_xlim)
 
-    fig.canvas.draw()
+    fig.canvas.draw_idle()
 
 fig.canvas.mpl_connect('key_press_event', on_key)
+
+# Blitting setup
+background = fig.canvas.copy_from_bbox(ax.bbox)
+fig.canvas.draw()
+
+def draw_idle(event):
+    fig.canvas.restore_region(background)
+    ax.draw_artist(im)
+    fig.canvas.blit(ax.bbox)
+
+fig.canvas.mpl_connect('draw_event', draw_idle)
 
 plt.show()
