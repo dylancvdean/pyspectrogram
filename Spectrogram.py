@@ -9,14 +9,14 @@ dt = 0.0005
 t = np.arange(0.0, 20.0, dt)
 s1 = np.sin(2 * np.pi * 100 * t)
 s2 = 2 * np.sin(2 * np.pi * 400 * t)
-
+s3 = np.sin(2 * np.pi * 400 * t)
 # create a transient "chirp"
 s2[t <= 10] = s2[12 <= t] = 0
 
 # add some noise into the mix
 nse = 0.01 * np.random.random(size=len(t))
 
-x1 = s1 + s2 + nse  # the signal
+x1 = s1 + s2 + s3 + nse  # the signal
 NFFT = 1024  # the length of the windowing segments
 Fs = int(1.0 / dt)  # the sampling frequency
 
@@ -39,17 +39,19 @@ def draw(x, y, ax, ax_histx, ax_histy, ax_colormap):
 
     Pxx, freqs, bins, im = ax.specgram(x1, NFFT=NFFT, Fs=Fs, noverlap=900)
 
-    # now determine nice limits by hand:
+    # calculate the frequency and amplitude of the signal
+    fft = np.fft.fft(x1)
+    freq = np.fft.fftfreq(len(x1), dt)
+    freq_mask = freq >= 0
+    freq = freq[freq_mask]
+    amp = np.abs(fft[freq_mask])
     
-
-  
-    binwidth = 0.25
-    xymax = max(np.max(np.abs(x)), np.max(np.abs(y)))
-    lim = (int(xymax/binwidth) + 1) * binwidth
-    bins = np.arange(-lim, lim + binwidth, binwidth)
-    #ax_histx.hist(x, bins=bins)
-    ax_histx.plot(t,x1)
-    ax_histy.hist(y, bins=bins, orientation='horizontal')
+    # plot the frequency and amplitude on the left plot
+    ax_histy.plot(amp, freq)
+    ax_histy.set_ylim([0, Fs/2])
+    
+    # plot the x-axis data on the bottom plot
+    ax_histx.plot(t, x1)
 
 #16:9 aspect ratio figure
 fig = plt.figure(figsize=(16, 9))
@@ -71,3 +73,4 @@ draw(x, y, ax, ax_histx, ax_histy, ax_colormap)
 
 
 plt.show()
+
