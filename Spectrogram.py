@@ -32,7 +32,7 @@ def update_colormap(ax, colormap):
     fig.canvas.draw_idle()
 
 fig = plt.figure(figsize=(16, 9))
-gs = fig.add_gridspec(2, 3, width_ratios=(2, 8, 1), height_ratios=(4, 1),
+gs = fig.add_gridspec(3, 3, width_ratios=(2, 8, 1), height_ratios=(4, 1, 1),
                       left=0.1, right=0.9, bottom=0.1, top=0.9,
                       wspace=0.05, hspace=0.05)
 
@@ -40,6 +40,12 @@ ax = fig.add_subplot(gs[0, 1])
 ax_histx = fig.add_subplot(gs[1, 1], sharex=ax)
 ax_histy = fig.add_subplot(gs[0, 0])
 ax_colormap = fig.add_subplot(gs[0, 2])
+
+ax_time_labels = fig.add_subplot(gs[2, 1], sharex=ax_histx)
+ax_time_labels.tick_params(axis="x", labelbottom=True)
+ax_time_labels.tick_params(axis="y", labelleft=False, left=False)
+ax_time_labels.yaxis.set_label_position("right")
+ax_time_labels.set_ylabel("Time (ms)")
 
 ax_histx.tick_params(axis="x", labelbottom=False)
 ax_histy.tick_params(axis="y", labelleft=True)
@@ -64,6 +70,11 @@ ax.set_xlim(0, 20)
 ax_histx.set_xlim(0, 20)
 
 zoom_scale = 1.1
+
+def update_time_labels():
+    current_xlim = ax_histx.get_xlim()
+    ax_time_labels.set_xticklabels([f"{(t - current_xlim[1]) * 1000:.0f}" for t in ax_time_labels.get_xticks()])
+    fig.canvas.draw_idle()
 
 def on_key(event):
     global current_colormap_idx
@@ -115,7 +126,6 @@ def on_key(event):
 
     ax.set_ylim(new_ylim)
 
-    # Update the ylim for ax_histy subplot and rescale the amplitude data
     freq_mask = (freq >= new_ylim[0]) & (freq <= new_ylim[1])
     visible_freq = freq[freq_mask]
     visible_amp = amp[freq_mask]
@@ -126,8 +136,9 @@ def on_key(event):
     ax_histy.set_ylim(new_ylim)
     ax_histy.set_ylabel('Frequency (Hz)')
 
-    fig.canvas.draw_idle()
+    update_time_labels()
 
 fig.canvas.mpl_connect('key_press_event', on_key)
 
+update_time_labels()
 plt.show()
