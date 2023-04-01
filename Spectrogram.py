@@ -108,10 +108,10 @@ def on_key(event):
     if new_yrange < min_freq:
         new_yrange = min_freq
 
-    xcenter = np.mean(current_xlim)
+    xcenter = current_xlim[1]
     ycenter = np.mean(current_ylim)
 
-    new_xlim = (xcenter - new_xrange / 2, xcenter + new_xrange / 2)
+    new_xlim = (xcenter - new_xrange, min(xcenter, 1))
     new_ylim = (current_ylim[0], ycenter + new_yrange / 2)
 
     ax.set_xlim(new_xlim)
@@ -134,6 +134,8 @@ def on_key(event):
     ax_histx.xaxis.set_major_locator(FixedLocator(ax_histx.get_xticks()))
     ax_histx.xaxis.set_major_formatter(FixedFormatter([f"{x * 1000:.0f}" for x in ax_histx.get_xticks()]))
 
+    ax_histx.xaxis.set_major_locator(plt.MaxNLocator(integer=True, prune='both'))
+    ax_histx.xaxis.set_major_formatter(FixedFormatter([f"{x * 1000:.0f}" for x in ax_histx.get_xticks()]))
     fig.canvas.draw_idle()
 
 fig.canvas.mpl_connect('key_press_event', on_key)
