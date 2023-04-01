@@ -3,23 +3,13 @@ import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FixedLocator, FixedFormatter
+import time
 
-dt = 0.0005
-t = np.arange(0.0, 4.0, dt)  # 4000ms of signal
-s1 = np.sin(2 * np.pi * 100 * t)
-s2 = 2 * np.sin(2 * np.pi * 400 * t)
-s3 = np.sin(2 * np.pi * 400 * t)
+dt = 0.01  # Set the time step to 1 ms
+t = np.arange(0.0, 1.0, dt)  # Set the time range to 0 to 1000 ms
 
-s2[t <= 10] = s2[12 <= t] = 0
-
-nse = 0.01 * np.random.random(size=len(t))
-
-x1 = s1 + s2 + s3 + nse
-NFFT = 1024
+NFFT = 512  # Set NFFT to a value less than the signal length (1000)
 Fs = int(1.0 / dt)
-
-x = np.random.randn(1000)
-y = np.random.randn(1000)
 
 colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
 current_colormap_idx = 0
@@ -45,28 +35,53 @@ ax_colormap = fig.add_subplot(gs[0, 2])
 ax.tick_params(axis="x", labelbottom=False)
 ax_histy.tick_params(axis="y", labelleft=True)
 
-Pxx, freqs, bins, im = ax.specgram(x1, NFFT=NFFT, Fs=Fs, noverlap=0, cmap=colormaps[current_colormap_idx])
-
-fft = np.fft.fft(x1)
-freq = np.fft.fftfreq(len(x1), dt)
-freq_mask = freq >= 0
-freq = freq[freq_mask]
-amp = np.abs(fft[freq_mask])
-
-ax_histy.plot(amp, freq)
-ax_histy.set_ylim([0, Fs / 2])
-ax_histy.set_ylabel('Frequency (Hz)')
-
-ax_histx.plot(t, x1)
+Pxx, freqs, bins, im = ax.specgram(np.zeros_like(t), NFFT=NFFT, Fs=Fs, noverlap=0, cmap=colormaps[current_colormap_idx])
 
 plt.colorbar(im, cax=ax_colormap)
 
-ax.set_xlim(0, 1)  # 1000ms of signal
-ax_histx.set_xlim(0, 1)  # 1000ms of signal
+ax.set_xlim(0, 1)  # Set the x-axis limits to 0 to 1000 ms
+ax_histx.set_xlim(0, 1)  # Set the x-axis limits to 0 to 1000 ms
 ax.set_xlabel('')  # Remove x-axis label from the spectrogram plot
 ax_histx.set_xlabel('Time (ms)')  # Add x-axis label to the time domain plot
 
 zoom_scale = 1.1
+
+freq = None
+
+amp = None
+freq_mask = None
+
+
+def update_spectrogram():
+    global freq
+    try:
+        with open('./spec/fft', 'rb') as f:
+            fft_data = np.fromfile(f, dtype=np.complex128)
+    except FileNotFoundError:
+        print("FFT data file not found.")
+        return
+
+    # Check if fft_data has at least two elements
+    if len(fft_data) < 2:
+        print("Insufficient FFT data.")
+        return
+
+    freq = np.fft.fftfreq(len(fft_data), dt)
+    freq_mask = freq >= 0
+    freq = freq[freq_mask]
+    amp = np.abs(fft_data[freq_mask])
+
+    Pxx, _, _, _ = ax.specgram(amp, NFFT=NFFT, Fs=Fs, noverlap=0, cmap=colormaps[current_colormap_idx])
+    plt.pause(0.01)
+
+    # Calculate the sum of amplitudes at each frequency
+    summed_amplitudes = np.sum(Pxx, axis=1)
+
+    # Update the frequency domain plot on the left
+    ax_histy.clear()
+    ax_histy.plot(summed_amplitudes, freqs)  # Use 'freqs' instead of 'freq'
+    ax_histy.set_ylabel('Frequency (Hz)')
+    ax_histy.set_xlabel('Amplitude')
 
 def on_key(event):
     global current_colormap_idx
@@ -140,4 +155,6 @@ def on_key(event):
 
 fig.canvas.mpl_connect('key_press_event', on_key)
 
-plt.show()
+while True:
+    update_spectrogram()
+    plt.pause(0.01)
