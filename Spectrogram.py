@@ -157,4 +157,4 @@ fig.canvas.mpl_connect('key_press_event', on_key)
 
 while True:
     update_spectrogram()
-    plt.pause(0.01)
+    plt.pause(0.03)
