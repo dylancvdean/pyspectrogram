@@ -34,7 +34,8 @@ while True:
         fft_data.tofile(f)
 
     # Wait for 10 ms before updating the signal
-    time.sleep(step_size / 1000)
+    #time.sleep(step_size / 1000)
+    time.sleep(0.03)
 
     # Update the current time
     current_time += step_size / 1000
