@@ -2,7 +2,7 @@ import numpy as np
 import time
 import os
 
-dt = 0.01  # Set the time step to 1 ms
+dt = 0.001  # Set the time step to 1 ms
 t = np.arange(0.0, 1.0, dt)  # Set the time range to 0 to 1000 ms
 
 # Create a function to generate the signal at a given time
