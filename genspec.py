@@ -25,16 +25,19 @@ current_time = 0
 
 while True:
     # Generate the signal for the current time window
-    current_t = np.arange(current_time, current_time + 1.0, dt)
+    current_t = np.linspace(current_time, current_time + 1.0, int(1.0/dt), endpoint=False)
     x1 = generate_signal(current_t)
 
     # Calculate the FFT of the signal and save it to the file
     fft_data = np.fft.fft(x1)
-    with open('./spec/fft', 'w') as f:
+    with open('./spec/fft', 'wb') as f:
         fft_data.tofile(f)
 
-    # Wait for 10 ms before updating the signal
-    #time.sleep(step_size / 1000)
+    # Save the time domain signal to a file
+    with open('./spec/time_domain', 'wb') as f:
+        x1.tofile(f)
+
+    # Wait for 30 ms before updating the signal
     time.sleep(0.03)
 
     # Update the current time
