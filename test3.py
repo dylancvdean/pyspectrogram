@@ -90,7 +90,7 @@ ax_time_domain.set_ylim(-100, 100)
 ax_time_domain.set_xlim(0,1)
 #ax_time_domain.set_title('Time Domain Signal')
 ax_time_domain.set_title('')
-ax_time_domain.set_xlabel('Time (ms)')
+ax_time_domain.set_xlabel('Time (S)')
 ax_time_domain.set_ylabel('Amplitude')
 
 # Set up the frequency domain plot
