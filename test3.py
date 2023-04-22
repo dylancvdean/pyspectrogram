@@ -10,6 +10,8 @@ from scipy import signal
 dt = 0.001
 t = np.arange(0.0, 1.0, dt)
 buffer_size = 100
+colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
+current_colormap = 0
 
 # Create a function to read the FFT buffer file
 def read_fft_buffer_file(file_path):
@@ -37,7 +39,7 @@ def read_time_domain_file(file_path):
     
 # Create a function to update the spectrogram
 def update_spectrogram(i):
-    global im, line, freq_line
+    global im, line, freq_line, cbar
     fft_buffer = read_fft_buffer_file('./spec/fft')
     magnitude = np.abs(fft_buffer)
     magnitude[np.isnan(magnitude) | np.isinf(magnitude)] = 0
@@ -60,9 +62,17 @@ def update_spectrogram(i):
 
     # Update frequency domain plot
     freq_domain_data = np.sum(normalized_magnitude, axis=0)
+    #high amplitude signal for testing
+    #for k in range(5):
+        #freq_domain_data[k*100] = 100
+
     freq_line.set_xdata(freq_domain_data)
 
+    #cbar.update_normal(im)
+    print(time.time()*1000)
     return [im, line, freq_line]
+
+
 
 # Set up the spectrogram plot
 fig = plt.figure(figsize=(16, 9))
@@ -79,8 +89,18 @@ cbar.ax.set_ylabel('Magnitude (dB)')
 
 ax.set_title('Real-time Spectrogram')
 ax.set_xlabel('Time (Window Index)')
-ax.set_ylabel('Frequency (FFT Index)')
 
+num_yticks = 11
+ytick_locs = np.linspace(0, len(t) // 2, num_yticks)
+ytick_labels = np.linspace(0, 1 / (2 * dt), num_yticks)
+ax.set_yticks(ytick_locs)
+ax.set_yticklabels(ytick_labels)
+ax.set_ylabel('')
+#ax.set_ylim(0, len(t) // 2)
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+ax.set_xticks([])
+ax.set_yticks([])
 
 
 inner_gs = outer_gs[1, 1].subgridspec(1, 2, width_ratios=[9, 2], wspace=0.05)
@@ -106,6 +126,27 @@ ax.set_xlim(0, 100)  # Set the x-axis limits to 0 to 1000 ms
 ax.set_xlabel('')  # Remove x-axis label from the spectrogram plot
 
 zoom_scale = 1.1
+
+def update_colorbar():
+    global cbar, im, fig
+    cbar.mappable.set_cmap(im.get_cmap())
+    cbar.update_ticks()
+
+def on_key(event):
+    global current_colormap, im, cbar, ax, fig
+    if event.key == 'right':
+        current_colormap = (current_colormap + 1) % len(colormaps)
+    elif event.key == 'left':
+        current_colormap = (current_colormap - 1) % len(colormaps)
+    im.set_cmap(colormaps[current_colormap])
+
+    # Remove the old colorbar and create a new one
+    cbar.remove()
+    cbar = fig.colorbar(im, ax=ax)
+    cbar.ax.set_ylabel('Magnitude (dB)')
+    fig.canvas.draw_idle()
+
+fig.canvas.mpl_connect('key_press_event', on_key)
 
 # Create an animation to update the spectrogram in real-time
 ani = FuncAnimation(fig, update_spectrogram, interval=30, cache_frame_data=False, blit=True)
