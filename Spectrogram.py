@@ -3,6 +3,7 @@ import os
 import fcntl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import time
 
 # Define variables
 dt = 0.001
@@ -10,7 +11,9 @@ t = np.arange(0.0, 1.0, dt)
 buffer_size = 100
 colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
 current_colormap = 0
+debug = True
 
+starttime=time.time()*1000
 # Create a function to read the FFT buffer file
 def read_fft_buffer_file(file_path):
     if os.path.exists(file_path):
@@ -62,7 +65,8 @@ def update_spectrogram(i):
     freq_domain_data = np.sum(normalized_magnitude, axis=0)
 
     freq_line.set_xdata(freq_domain_data)
-
+    if debug:
+        print(time.time()*1000-starttime)
     return [im, line, freq_line]
 
 # Set up the spectrogram plot
@@ -130,7 +134,7 @@ def on_key(event):
 fig.canvas.mpl_connect('key_press_event', on_key)
 
 # Create an animation to update the spectrogram in real-time
-ani = FuncAnimation(fig, update_spectrogram, interval=30, cache_frame_data=False, blit=True)
-
+ani = FuncAnimation(fig, update_spectrogram, interval=10, cache_frame_data=False, blit=True)
+ani = FuncAnimation(fig, update_spectrogram, cache_frame_data=False, blit=False)
 # Display the spectrogram
 plt.show()
