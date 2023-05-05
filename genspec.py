@@ -9,16 +9,16 @@ t = np.arange(0.0, 1.0, dt)  # Set the time range to 0 to 1000 ms
 
 # Create a function to generate the signal at a given time
 def generate_signal(t, current_time):
-    s1 = np.sin(2 * np.pi * (100 + 50 * np.sin(2 * np.pi * 0.5 * current_time)) * t)
-    s2 = 2 * np.sin(2 * np.pi * (400 + 100 * np.sin(2 * np.pi * 0.2 * current_time)) * t)
+    s1 = 5* np.sin(2 * np.pi * (100 + 50 * np.sin(2 * np.pi * 0.5 * current_time)) * t)
+    s2 = 5 * np.sin(2 * np.pi * (400 + 100 * np.sin(2 * np.pi * 0.2 * current_time)) * t)
 
-    nse = 50 * np.random.random(size=len(t))
+    nse = 2 * np.random.random(size=len(t))
 
     # Add a square wave
-    sqr_wave = signal.square(2 * np.pi * (50 + 10 * np.sin(2 * np.pi * 0.1 * current_time)) * t)
+    sqr_wave = 5* signal.square(2 * np.pi * (50 + 10 * np.sin(2 * np.pi * 0.1 * current_time)) * t)
 
     # Add a sawtooth wave
-    saw_wave = signal.sawtooth(2 * np.pi * (200 + 50 * np.sin(2 * np.pi * 0.3 * current_time)) * t)
+    saw_wave = 10 * signal.sawtooth(2 * np.pi * (200 + 50 * np.sin(2 * np.pi * 0.3 * current_time)) * t)
 
     return s1 + s2 + nse + sqr_wave + saw_wave
 

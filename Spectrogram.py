@@ -81,15 +81,15 @@ normalized_magnitude = magnitude / np.max(magnitude)
 im = ax.imshow(normalized_magnitude.T, cmap='viridis', aspect='auto', origin='lower')
 cbar = fig.colorbar(im, ax=ax)
 cbar.ax.set_ylabel('Magnitude (dB)')
-
 ax.set_title('Real-time Spectrogram')
 ax.set_xlabel('Time (Window Index)')
 
 num_yticks = 11
-ytick_locs = np.linspace(0, len(t) // 2, num_yticks)
+ytick_locs = np.linspace(0, len(t) // 2 + 1, num_yticks)
 ytick_labels = np.linspace(0, 1 / (2 * dt), num_yticks)
 ax.set_yticks(ytick_locs)
 ax.set_yticklabels(ytick_labels)
+
 ax.set_ylabel('')
 ax.set_xticklabels([])
 ax.set_yticklabels([])
@@ -106,7 +106,8 @@ ax_time_domain.set_xlabel('Time (S)')
 ax_time_domain.set_ylabel('Amplitude')
 
 # Set up the frequency domain plot
-ax_freq_domain = fig.add_subplot(outer_gs[0, 0], sharey=ax)
+#ax_freq_domain = fig.add_subplot(outer_gs[0, 0], sharey=ax)
+ax_freq_domain = fig.add_subplot(outer_gs[0, 0])
 freq_line, = ax_freq_domain.plot(np.zeros(len(t) // 2 + 1), np.arange(len(t) // 2 + 1), lw=1)
 ax_freq_domain.set_xlim(0, 100)
 ax_freq_domain.set_ylim(0, len(t) // 2 + 1)
@@ -130,11 +131,17 @@ def on_key(event):
         y_min, y_max = ax.get_ylim()
         new_y_min, new_y_max = y_min * zoom_factor, y_max / zoom_factor
         ax.set_ylim(new_y_min, new_y_max)
+        
+        y_min, y_max = ax_freq_domain.get_ylim()
+        new_y_min, new_y_max = y_min * zoom_factor, y_max / zoom_factor
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
     elif event.key == 's':  # Zoom out on the frequency axis
         y_min, y_max = ax.get_ylim()
         new_y_min, new_y_max = y_min / zoom_factor, y_max * zoom_factor
         ax.set_ylim(new_y_min, new_y_max)
+        
+        y_min, y_max = ax_freq_domain.get_ylim()
+        new_y_min, new_y_max = y_min / zoom_factor, y_max * zoom_factor
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
     elif event.key == 'a':  # Zoom out on the time axis
         x_min, x_max = ax.get_xlim()
