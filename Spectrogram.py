@@ -15,6 +15,13 @@ buffer_size = 100
 colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
 current_colormap = 0
 
+first_call = True
+init_ax_ylim = None
+init_ax_xlim = None
+init_ax_freq_ylim = None
+init_ax_time_xlim = None
+
+
 # Create a function to read the FFT buffer file
 def read_fft_buffer_file(file_path):
     if os.path.exists(file_path):
@@ -120,6 +127,14 @@ ax.set_xlabel('')  # Remove x-axis label from the spectrogram plot
 
 def on_key(event):
     global current_colormap, im, cbar, ax, fig, ax_time_domain, ax_freq_domain
+    global init_ax_ylim, init_ax_xlim, init_ax_freq_ylim, init_ax_time_xlim, first_call
+
+    if first_call:
+        init_ax_ylim = ax.get_ylim()
+        init_ax_xlim = ax.get_xlim()
+        init_ax_freq_ylim = ax_freq_domain.get_ylim()
+        init_ax_time_xlim = ax_time_domain.get_xlim()
+        first_call = False
 
     zoom_factor = 1.1
 
@@ -137,15 +152,15 @@ def on_key(event):
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
     elif event.key == 's':  # Zoom out on the frequency axis
         y_min, y_max = ax.get_ylim()
-        new_y_min, new_y_max = y_min / zoom_factor, y_max * zoom_factor
+        new_y_min, new_y_max = max(y_min / zoom_factor, init_ax_ylim[0]), min(y_max * zoom_factor, init_ax_ylim[1])
         ax.set_ylim(new_y_min, new_y_max)
         
         y_min, y_max = ax_freq_domain.get_ylim()
-        new_y_min, new_y_max = y_min / zoom_factor, y_max * zoom_factor
+        new_y_min, new_y_max = max(y_min / zoom_factor, init_ax_freq_ylim[0]), min(y_max * zoom_factor, init_ax_freq_ylim[1])
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
     elif event.key == 'a':  # Zoom out on the time axis
         x_min, x_max = ax.get_xlim()
-        new_x_min, new_x_max = x_min / zoom_factor, x_max * zoom_factor
+        new_x_min, new_x_max = max(x_min / zoom_factor, init_ax_xlim[0]), min(x_max * zoom_factor, init_ax_xlim[1])
         ax.set_xlim(new_x_min, new_x_max)
         ax_time_domain.set_xlim(new_x_min / 100, new_x_max / 100)
     elif event.key == 'd':  # Zoom in on the time axis

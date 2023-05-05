@@ -20,7 +20,7 @@ def generate_signal(t, current_time):
     # Add a sawtooth wave
     saw_wave = 10 * signal.sawtooth(2 * np.pi * (200 + 50 * np.sin(2 * np.pi * 0.3 * current_time)) * t)
 
-    return s1 + s2 + nse + sqr_wave + saw_wave
+    return s1 + s2 + nse# + sqr_wave + saw_wave
 
 os.makedirs('./spec', exist_ok=True)
 
