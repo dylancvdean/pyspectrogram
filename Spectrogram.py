@@ -140,12 +140,12 @@ def on_key(event):
         x_min, x_max = ax.get_xlim()
         new_x_min, new_x_max = x_min / zoom_factor, x_max * zoom_factor
         ax.set_xlim(new_x_min, new_x_max)
-        ax_time_domain.set_xlim(new_x_min, new_x_max)
+        ax_time_domain.set_xlim(new_x_min / 100, new_x_max / 100)
     elif event.key == 'd':  # Zoom in on the time axis
         x_min, x_max = ax.get_xlim()
         new_x_min, new_x_max = x_min * zoom_factor, x_max / zoom_factor
         ax.set_xlim(new_x_min, new_x_max)
-        ax_time_domain.set_xlim(new_x_min, new_x_max)
+        ax_time_domain.set_xlim(new_x_min / 100, new_x_max / 100)
 
     im.set_cmap(colormaps[current_colormap])
 
