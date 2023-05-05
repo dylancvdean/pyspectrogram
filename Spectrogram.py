@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import time
 
+#Disable s key saving screenshot
+plt.rcParams['keymap.save'].remove('s')
+
 # Define variables
 dt = 0.001
 t = np.arange(0.0, 1.0, dt)
@@ -118,11 +121,35 @@ ax.set_xlim(0, 100)  # Set the x-axis limits to 0 to 1000 ms
 ax.set_xlabel('')  # Remove x-axis label from the spectrogram plot
 
 def on_key(event):
-    global current_colormap, im, cbar, ax, fig
+    global current_colormap, im, cbar, ax, fig, ax_time_domain, ax_freq_domain
+
+    zoom_factor = 1.1
+
     if event.key == 'right':
         current_colormap = (current_colormap + 1) % len(colormaps)
     elif event.key == 'left':
         current_colormap = (current_colormap - 1) % len(colormaps)
+    elif event.key == 'w':  # Zoom in on the frequency axis
+        y_min, y_max = ax.get_ylim()
+        new_y_min, new_y_max = y_min * zoom_factor, y_max / zoom_factor
+        ax.set_ylim(new_y_min, new_y_max)
+        ax_freq_domain.set_ylim(new_y_min, new_y_max)
+    elif event.key == 's':  # Zoom out on the frequency axis
+        y_min, y_max = ax.get_ylim()
+        new_y_min, new_y_max = y_min / zoom_factor, y_max * zoom_factor
+        ax.set_ylim(new_y_min, new_y_max)
+        ax_freq_domain.set_ylim(new_y_min, new_y_max)
+    elif event.key == 'a':  # Zoom out on the time axis
+        x_min, x_max = ax.get_xlim()
+        new_x_min, new_x_max = x_min / zoom_factor, x_max * zoom_factor
+        ax.set_xlim(new_x_min, new_x_max)
+        ax_time_domain.set_xlim(new_x_min, new_x_max)
+    elif event.key == 'd':  # Zoom in on the time axis
+        x_min, x_max = ax.get_xlim()
+        new_x_min, new_x_max = x_min * zoom_factor, x_max / zoom_factor
+        ax.set_xlim(new_x_min, new_x_max)
+        ax_time_domain.set_xlim(new_x_min, new_x_max)
+
     im.set_cmap(colormaps[current_colormap])
 
     # Remove the old colorbar and create a new one

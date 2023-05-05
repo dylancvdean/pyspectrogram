@@ -1,5 +1,4 @@
 "./__constants.o"
-"./__constants_data.o"
 "./__helpers.o"
 "./__loader.o"
 "./module.__main__.o"
