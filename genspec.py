@@ -12,6 +12,7 @@ def generate_signal(t, current_time):
     s1 = 5* np.sin(2 * np.pi * (100 + 50 * np.sin(2 * np.pi * 0.5 * current_time)) * t)
     s2 = 5 * np.sin(2 * np.pi * (400 + 100 * np.sin(2 * np.pi * 0.2 * current_time)) * t)
 
+    # Add noise for base of signal
     nse = 2 * np.random.random(size=len(t))
 
     # Add a square wave
