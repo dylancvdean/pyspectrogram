@@ -6,7 +6,7 @@ The python profiler used was [functiontrace](https://functiontrace.com/), with t
 
 This command uses cpulimit to restrict the functiontrace operation to 24% of my laptop's CPU speed, which is 3.4Ghz. This roughly accounts for the difference between my laptop's dual core processor, and the DE-10 nano's dual core 800Mhz processor.
 
-Noteworthy in the profile is that 84% of the clock cycles are spent on show(), which means that only 16% is available for optimization. Further improvements to the code will only yield marginal performance improvements without changing how the plots are displayed. This was calculated with a profile of over 10 minutes of runtime, which minimizes the effects of startup transients.
+Noteworthy in the profile is that 70% of the clock cycles are spent on show(), which means that only 16% is available for optimization. Further improvements to the code will only yield marginal performance improvements without changing how the plots are displayed. This was calculated with a profile of over 10 minutes of runtime, which minimizes the effects of startup transients.
 
 ![Call Tree](call-tree.png)
 
