@@ -48,6 +48,7 @@ def read_time_domain_file(file_path):
     
 # Create a function to update the spectrogram
 def update_spectrogram(i):
+    print(time.time_ns()/1000000)
     global im, line, freq_line, cbar
     fft_buffer = read_fft_buffer_file('./spec/fft')
     magnitude = np.abs(fft_buffer)
