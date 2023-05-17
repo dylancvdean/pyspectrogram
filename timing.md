@@ -13,3 +13,9 @@ Noteworthy in the profile is that 84% of the clock cycles are spent on show(), w
 Using the same cpulimit factor to approximate the performance of the DE-10 Nano, we add a `print(time.time_ns()/1000000)` line in the `update_spectrogram()` function.
 
 This gives us an average framerate of just over 10 FPS. This misses our spec by a third, and the degree to which it misses our spec is not solvable with optimizations short of switching from matplotlib.
+
+---
+## ARM Performance Adjustment
+[Phoronix](https://www.phoronix.com/review/gentoo_arm_x32/2) released comparisons of the ARM Cortex A9 and an x86 processor. Performance on dcraw shows nearly identical performance between the Cortex A9 and the x86-64 processor at the same clock speed.![Dcraw](https://openbenchmarking.org/embed.php?i=1208261-BY-MERGE844207&sha=2a20ad1&p=2)
+
+This data suggests that once adjusted for clock speed, we should see similar performance between the laptop and the DE-10 Nano SOC.
