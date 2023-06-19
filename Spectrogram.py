@@ -20,7 +20,7 @@ init_ax_ylim = None
 init_ax_xlim = None
 init_ax_freq_ylim = None
 init_ax_time_xlim = None
-
+current_zoom=1
 
 # Create a function to read the FFT buffer file
 def read_fft_buffer_file(file_path):
@@ -36,6 +36,8 @@ def read_fft_buffer_file(file_path):
     else:
         return np.zeros((buffer_size, len(t) // 2 + 1), dtype=np.complex128)
 
+
+# Create a function to read the Time Domain file
 def read_time_domain_file(file_path):
     if os.path.exists(file_path):
         with open(file_path, 'rb') as f:
@@ -48,7 +50,6 @@ def read_time_domain_file(file_path):
     
 # Create a function to update the spectrogram
 def update_spectrogram(i):
-    print(time.time_ns()/1000000)
     global im, line, freq_line, cbar
     fft_buffer = read_fft_buffer_file('./spec/fft')
     magnitude = np.abs(fft_buffer)
@@ -57,7 +58,6 @@ def update_spectrogram(i):
         normalized_magnitude = magnitude / (np.max(magnitude) + 1e-8)
     else:
         return [im, line, freq_line]
-        #normalized_magnitude = np.zeros((buffer_size, len(t) // 2 + 1), dtype=np.float64)
 
     num_rows, num_cols = buffer_size, len(t) // 2 + 1
     normalized_magnitude = 20*normalized_magnitude[:num_rows, :num_cols]
@@ -99,7 +99,10 @@ ax.set_xlabel('Time (Window Index)')
 # Set up tickmarks, don't double label axes
 num_yticks = 11
 ytick_locs = np.linspace(0, len(t) // 2 + 1, num_yticks)
-ytick_labels = np.linspace(0, 1 / (2 * dt), num_yticks)
+#ytick_locs=np.linspace(0,20000,num_yticks)
+#ytick_labels = np.linspace(0, 1 / (2 * dt), num_yticks)
+ytick_labels = np.linspace(0,40000,num_yticks)
+
 ax.set_yticks(ytick_locs)
 ax.set_yticklabels(ytick_labels)
 ax.set_ylabel('')
@@ -121,11 +124,13 @@ ax_time_domain.set_ylabel('Amplitude')
 # Set up the frequency domain plot
 ax_freq_domain = fig.add_subplot(outer_gs[0, 0])
 freq_line, = ax_freq_domain.plot(np.zeros(len(t) // 2 + 1), np.arange(len(t) // 2 + 1), lw=1)
-ax_freq_domain.set_xlim(0, 100)
+ax_freq_domain.set_xlim(0, 200)
 ax_freq_domain.set_ylim(0, len(t) // 2 + 1)
 ax_freq_domain.set_title('Frequency Domain')
-ax_freq_domain.set_xlabel('Amplitude')
+ax_freq_domain.set_xlabel('Amplitude (dB)')
 ax_freq_domain.set_ylabel('Frequency (FFT Index)')
+
+ax_freq_domain.set_yticklabels(ytick_labels)
 
 ax.set_xlim(0, 100)  # Set the x-axis limits to 0 to 1000 ms
 ax.set_xlabel('')  # Remove x-axis label from the spectrogram plot
@@ -133,17 +138,17 @@ ax.set_xlabel('')  # Remove x-axis label from the spectrogram plot
 def on_key(event):
     # Handle keypress events
     global current_colormap, im, cbar, ax, fig, ax_time_domain, ax_freq_domain
-    global init_ax_ylim, init_ax_xlim, init_ax_freq_ylim, init_ax_time_xlim, first_call
+    global init_ax_ylim, init_ax_xlim, init_ax_freq_ylim, init_ax_time_xlim, first_call, current_zoom
 
     if first_call:
         # Set our variables to limit the zoom
         init_ax_ylim = ax.get_ylim()
         init_ax_xlim = ax.get_xlim()
-        init_ax_freq_ylim = ax_freq_domain.get_ylim()
+        init_ax_freq_ylim = ax_freq_domain.get_ylim()  # Remove *20 from here
         init_ax_time_xlim = ax_time_domain.get_xlim()
         first_call = False
 
-    zoom_factor = 1.1 # How much to zoom by at once
+    zoom_factor = 1.1  # How much to zoom by at once
 
     if event.key == 'right':
         # Shift colormap forward
@@ -162,6 +167,12 @@ def on_key(event):
         new_y_min, new_y_max = y_min * zoom_factor, y_max / zoom_factor
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
 
+        # Update the y-axis tick labels
+        ytick_locs = ax_freq_domain.get_yticks()
+        ytick_labels = np.linspace(0, min(20000*current_zoom,20000), len(ytick_locs))
+        ax_freq_domain.set_yticklabels(ytick_labels)
+        current_zoom /= zoom_factor  # Update the zoom factor
+
     elif event.key == 's':
         # Zoom out on the frequency axis
         y_min, y_max = ax.get_ylim()
@@ -170,6 +181,13 @@ def on_key(event):
         y_min, y_max = ax_freq_domain.get_ylim()
         new_y_min, new_y_max = max(y_min / zoom_factor, init_ax_freq_ylim[0]), min(y_max * zoom_factor, init_ax_freq_ylim[1])
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
+
+        # Update the y-axis tick labels
+        ytick_locs = ax_freq_domain.get_yticks()
+        ytick_labels = np.linspace(0, min(20000*current_zoom,20000), len(ytick_locs))
+        ax_freq_domain.set_yticklabels(ytick_labels)
+        current_zoom *= zoom_factor  # Update the zoom factor
+
 
     elif event.key == 'a':
         # Zoom out on the time axis
