@@ -60,15 +60,15 @@ def update_spectrogram(i):
         return [im, line, freq_line]
 
     num_rows, num_cols = buffer_size, len(t) // 2 + 1
-    normalized_magnitude = 20*normalized_magnitude[:num_rows, :num_cols]
+    normalized_magnitude = 20 * normalized_magnitude[:num_rows, :num_cols]
 
     im.set_array(normalized_magnitude.T)
     time_domain_data = read_time_domain_file('./spec/time_domain')
-    
+
     # Check if the time_domain_data array has the correct shape
     if time_domain_data.shape != (len(t),):
         time_domain_data = np.zeros(len(t), dtype=np.float64)
-    
+
     line.set_ydata(time_domain_data)
 
     # Update frequency domain plot
@@ -76,6 +76,7 @@ def update_spectrogram(i):
     freq_line.set_xdata(freq_domain_data)
 
     return [im, line, freq_line]
+
 
 # Set up the spectrogram plot
 fig = plt.figure(figsize=(16, 9))

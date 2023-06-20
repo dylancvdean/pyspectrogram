@@ -9,10 +9,13 @@ t = np.arange(0.0, 1.0, dt)  # Set the time range to 0 to 1000 ms
 
 # Create a function to generate the signal at a given time
 def generate_signal(t, current_time):
+    signal_freq = 100
+    toggle_duration = 0.2  # Duration of each toggle in seconds
+    toggle_period = 0.4  # Period of toggling on and off in seconds
     
-    signal_freq=100
-    sine_wave = 20* np.sin(2.0 * np.pi * signal_freq * t)
-    return  sine_wave
+    toggle = int((current_time % toggle_period) < toggle_duration)
+    sine_wave = toggle * 20 * np.sin(2.0 * np.pi * signal_freq * t)
+    return sine_wave
 
 os.makedirs('./spec', exist_ok=True)
 
@@ -45,8 +48,8 @@ while True:
     with open('./spec/time_domain', 'wb') as f:
         x1.tofile(f)
 
-    # Wait for 30 ms before updating the signal
-    time.sleep(0.03)
+    # Wait for 10 ms before updating the signal
+    time.sleep(0.01)
 
     # Update the current time
     current_time += step_size / 1000
