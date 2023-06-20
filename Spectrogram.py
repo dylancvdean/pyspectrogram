@@ -135,6 +135,11 @@ ax_freq_domain.set_yticklabels(ytick_labels)
 ax.set_xlim(0, 100)  # Set the x-axis limits to 0 to 1000 ms
 ax.set_xlabel('')  # Remove x-axis label from the spectrogram plot
 
+def update_ytick_labels(axis, zoom):
+    ytick_locs = axis.get_yticks()
+    ytick_labels = np.round(np.linspace(0, min(24000 * zoom, 24000), len(ytick_locs)))
+    axis.set_yticklabels(ytick_labels)
+    
 def on_key(event):
     # Handle keypress events
     global current_colormap, im, cbar, ax, fig, ax_time_domain, ax_freq_domain
@@ -168,9 +173,8 @@ def on_key(event):
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
 
         # Update the y-axis tick labels
-        ytick_locs = ax_freq_domain.get_yticks()
-        ytick_labels = np.linspace(0, min(20000*current_zoom,20000), len(ytick_locs))
-        ax_freq_domain.set_yticklabels(ytick_labels)
+        update_ytick_labels(ax_freq_domain, current_zoom / zoom_factor)
+
         current_zoom /= zoom_factor  # Update the zoom factor
 
     elif event.key == 's':
@@ -183,9 +187,8 @@ def on_key(event):
         ax_freq_domain.set_ylim(new_y_min, new_y_max)
 
         # Update the y-axis tick labels
-        ytick_locs = ax_freq_domain.get_yticks()
-        ytick_labels = np.linspace(0, min(20000*current_zoom,20000), len(ytick_locs))
-        ax_freq_domain.set_yticklabels(ytick_labels)
+        update_ytick_labels(ax_freq_domain, current_zoom * zoom_factor)
+
         current_zoom *= zoom_factor  # Update the zoom factor
 
 
@@ -211,7 +214,9 @@ def on_key(event):
     cbar = fig.colorbar(im, ax=ax)
     cbar.ax.set_ylabel('Magnitude (dB)')
     fig.canvas.draw_idle()
+    
 
+    
 # Apply inputs to our figure
 fig.canvas.mpl_connect('key_press_event', on_key)
 

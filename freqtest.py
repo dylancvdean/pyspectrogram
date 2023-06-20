@@ -12,7 +12,7 @@ scale_factor=40
 def generate_signal(t, current_time):
     
     #list of signal frequencies in Hz
-    signal_freqs= 1, 500 ,2000, 5000, 10000, 20000
+    signal_freqs= 1, 500 ,2000, 5000, 10000, 18000
     signals = 0
     for signal_freq in signal_freqs:
         sine_wave = 20 * np.sin(2.0 * np.pi * signal_freq/40 * t)
