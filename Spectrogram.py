@@ -66,9 +66,13 @@ def update_spectrogram(i):
     time_domain_data = read_time_domain_file('./spec/time_domain')
 
     # Check if the time_domain_data array has the correct shape
-    if time_domain_data.shape != (len(t),):
+    if time_domain_data.shape != (len(t),):  
+        print("uh oh")
+        print(time_domain_data.shape)
+        print(len(t))
         time_domain_data = np.zeros(len(t), dtype=np.float64)
 
+    
     line.set_ydata(time_domain_data)
 
     # Update frequency domain plot
