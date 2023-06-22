@@ -33,8 +33,8 @@ while True:
     current_t = np.linspace(current_time, current_time + 1.0, 40*int(1.0/dt), endpoint=False)
     # What we're doing here is creating two signals because the frequency and time charts are operating under the hood
     # with different time axes: The frequency chart sees 1ms as 40ms, and 1hz as 40hz. This is just due to the 
-    # assumptions built into numpy and matplotlib: when the FPGA FFT is connected, an array of the FFT
-    # can be passed in pre-adjusted without nearly this much overhead.
+    # performance with plotting the FFT: we would have lost substantial performance "plotting" 40x more frequency
+    # buckets than vertical pixels on the plot, with no benefit. Passing in an FFT array from FPGA will work fine.
     current_t2 = np.linspace(current_time+0.22, current_time+0.22 + 1.0, 40*int(1.0/dt), endpoint=False)
     x1 = generate_signal(current_t)
     x1=x1[0:1000]
