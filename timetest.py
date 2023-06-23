@@ -9,7 +9,8 @@ t = np.arange(0.0, 1.0, dt)  # Set the time range to 0 to 1000 ms
 
 # Create a function to generate the signal at a given time
 def generate_signal(t):
-    signal_freq = 100
+    signal_freq = 100 # this is in 40x time, so this corresponds to 40kHz signal
+    # The above adjustment factor will not be necessary when time and frequency inputs are decoupled
     toggle_period = 0.2  # Period of toggling on and off in seconds
     sine_wave = 20 * np.sin(2.0 * np.pi * signal_freq * t)
     
