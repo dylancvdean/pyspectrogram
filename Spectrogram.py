@@ -106,7 +106,7 @@ num_yticks = 11
 ytick_locs = np.linspace(0, len(t) // 2 + 1, num_yticks)
 #ytick_locs=np.linspace(0,20000,num_yticks)
 #ytick_labels = np.linspace(0, 1 / (2 * dt), num_yticks)
-ytick_labels = np.linspace(0,40000,num_yticks)
+ytick_labels = np.linspace(0,48000,num_yticks)
 
 ax.set_yticks(ytick_locs)
 ax.set_yticklabels(ytick_labels)
@@ -154,7 +154,7 @@ def on_key(event):
         # Set our variables to limit the zoom
         init_ax_ylim = ax.get_ylim()
         init_ax_xlim = ax.get_xlim()
-        init_ax_freq_ylim = ax_freq_domain.get_ylim()  # Remove *20 from here
+        init_ax_freq_ylim = ax_freq_domain.get_ylim()
         init_ax_time_xlim = ax_time_domain.get_xlim()
         first_call = False
 

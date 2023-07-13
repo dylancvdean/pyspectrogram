@@ -60,3 +60,4 @@ while True:
 
     # Update the current time
     current_time += step_size / 1000
+    print(fft_data.size)
